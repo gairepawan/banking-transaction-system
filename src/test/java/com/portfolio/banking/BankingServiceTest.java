@@ -58,4 +58,18 @@ class BankingServiceTest {
         assertEquals("Amy", bank.accountsByOwner().getFirst().owner());
         assertThrows(NoSuchElementException.class, () -> bank.findAccount("X"));
     }
+
+    @Test void filtersTransactionHistoryByType() {
+        BankingService bank = new BankingService();
+        bank.openAccount("A", "Alex");
+        bank.deposit("A", new BigDecimal("50.00"));
+        bank.withdraw("A", new BigDecimal("10.00"));
+        bank.deposit("A", new BigDecimal("5.00"));
+        var deposits = bank.historyByType("A", Transaction.Type.DEPOSIT);
+        assertEquals(2, deposits.size());
+        assertTrue(deposits.stream().allMatch(tx -> tx.type() == Transaction.Type.DEPOSIT));
+        assertThrows(UnsupportedOperationException.class, deposits::clear);
+        assertThrows(IllegalArgumentException.class, () -> bank.historyByType("A", null));
+        assertThrows(NoSuchElementException.class, () -> bank.historyByType("UNKNOWN", Transaction.Type.DEPOSIT));
+    }
 }
