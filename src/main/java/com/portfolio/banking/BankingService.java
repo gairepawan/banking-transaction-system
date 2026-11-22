@@ -94,4 +94,10 @@ public final class BankingService {
         if (account.balance().compareTo(amount) < 0)
             throw new IllegalArgumentException("Insufficient funds in " + account.id());
     }
+
+    /** Returns an immutable snapshot of transactions with the specified type. */
+    public synchronized List<Transaction> historyByType(String id, Transaction.Type type) {
+        if (type == null) throw new IllegalArgumentException("Transaction type is required");
+        return history(id).stream().filter(transaction -> transaction.type() == type).toList();
+    }
 }
